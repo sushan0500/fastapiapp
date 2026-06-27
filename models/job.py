@@ -1,5 +1,4 @@
 from sqlalchemy import Column, Integer, String, Enum, ForeignKey
-from models.company import Company
 from database import Base, engine, SessionLocal
 from sqlalchemy.orm import relationship
 
