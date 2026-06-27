@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, String,Enum
-from sqlalchemy import Base, engine,SessionLocal,relationship
+from sqlalchemy import Column, Integer, String, ForeignKey,Enum
+from database import Base, engine, SessionLocal
+from sqlalchemy.orm import relationship
 
 class Company(Base):
     __tablename__ = "companies"
