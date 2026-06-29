@@ -5,7 +5,8 @@ from .job import JobResponse
 class CompanyBase(BaseModel):
     name: str
     email: str
-    phone: str 
+    phone: str
+    location: str 
 
 class CompanyCreate(CompanyBase):
     pass
@@ -14,7 +15,8 @@ class CompanyUpdate(BaseModel):
    name: Optional [str] = None
    email: Optional [str] = None
    phone: Optional [str] = None
-
+   location: Optional [str] = None
+   
 class CompanyResponse(CompanyBase):
     id:int
     jobs: list[JobResponse]
