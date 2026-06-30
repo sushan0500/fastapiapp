@@ -1,10 +1,10 @@
 import type {Company} from "../types/company";
 
 type Props = {
-    companies:Company[];
+    companies: Company[];
 }
-function CompanyCard({
-    Companies}:Props){
+
+function CompanyCard({ companies }: Props) {
     // const [companies, setCompanies] = useState<Company[]>([]);
 
     // async function fetchCompanies() {
