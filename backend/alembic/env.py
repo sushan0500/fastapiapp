@@ -7,6 +7,11 @@ from alembic import context
 import sys
 import os
 
+# Add the repo root to sys.path so imports like `from backend...` work
+current_dir = os.path.dirname(os.path.realpath(__file__))
+repo_root = os.path.abspath(os.path.join(current_dir, "..", ".."))
+if repo_root not in sys.path:
+    sys.path.insert(0, repo_root)
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -21,9 +26,11 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-from database import Base
-from models.company import Company
-from models.job import Job
+from backend.database import Base
+from backend.models.company import Company
+from backend.models.job import Job
+from backend.models.users import User
+
 target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,
