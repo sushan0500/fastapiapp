@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String
-from database import Base
+from backend.database import Base
 from sqlalchemy.orm import relationship
 
 class Company(Base):
