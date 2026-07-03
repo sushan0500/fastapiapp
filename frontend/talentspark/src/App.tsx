@@ -18,6 +18,8 @@ function App(){
       const company = await getCompanies();
       setCompanies(company);
     } catch (err) {
+      console.error("Failed to load companies:", err);
+      setCompanies([]);
       setError(err as Error);
     } finally {
       setLoading(false);
