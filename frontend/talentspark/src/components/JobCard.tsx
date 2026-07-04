@@ -20,7 +20,6 @@ function JobCard({ jobs, companies, onAdd, onEdit, onDelete }: Props) {
     });
 
     useEffect(() => {
-        // If companies were not available at mount, set company_id when they arrive
         if ((jobForm.company_id === 0 || jobForm.company_id === undefined) && companies.length > 0) {
             setJobForm((prev) => ({ ...prev, company_id: companies[0].id }));
         }
@@ -50,57 +49,91 @@ function JobCard({ jobs, companies, onAdd, onEdit, onDelete }: Props) {
     };
 
     return (
-        <div>
-            <h2>Jobs</h2>
+        <div className="card">
+            <div className="card-header">
+                <h2 className="card-title">
+                    <span className="card-icon">💼</span>
+                    Jobs
+                </h2>
+            </div>
+
             {jobs.length === 0 ? (
-                <p>No jobs available.</p>
+                <p style={{ color: "var(--text-secondary)", padding: "16px 0" }}>No jobs available. Add your first job below!</p>
             ) : (
                 jobs.map((job) => (
-                    <div key={job.id} style={{ border: "1px solid #ccc", margin: "8px 0", padding: "8px", position: "relative" }}>
-                        <div style={{ position: "absolute", right: 8, top: 8, display: "flex", gap: 6 }}>
-                            <button onClick={() => startEdit(job)} style={{ padding: "4px 8px" }}>Edit</button>
-                            <button onClick={() => handleDeleteClick(job.id)} style={{ padding: "4px 8px" }}>Delete</button>
+                    <div key={job.id} className="job-card">
+                        <div className="job-header">
+                            <div>
+                                <h3 className="job-title">{job.title}</h3>
+                                <p className="job-description">{job.description}</p>
+                                <div className="job-details">
+                                    <span className="job-detail">
+                                        <span>💰</span>
+                                        <strong>Salary:</strong> {job.salary}
+                                    </span>
+                                    <span className="job-detail">
+                                        <span>🔗</span>
+                                        <strong>Company:</strong> {companies.find(c => c.id === job.company_id)?.name || `ID: ${job.company_id}`}
+                                    </span>
+                                </div>
+                            </div>
+                            <div className="company-actions">
+                                <button className="btn btn-secondary" onClick={() => startEdit(job)}>
+                                    ✏️ Edit
+                                </button>
+                                <button className="btn btn-danger" onClick={() => handleDeleteClick(job.id)}>
+                                    🗑️ Delete
+                                </button>
+                            </div>
                         </div>
-                        <h3>{job.title}</h3>
-                        <p>{job.description}</p>
-                        <p>Salary: {job.salary}</p>
-                        <p>Company ID: {job.company_id}</p>
                     </div>
                 ))
             )}
 
-            <h3>Add Job</h3>
-            <input
-                type="text"
-                value={jobForm.title}
-                onChange={(e) => setJobForm({ ...jobForm, title: e.target.value })}
-                placeholder="Title"
-            />
-            <input
-                type="text"
-                value={jobForm.description}
-                onChange={(e) => setJobForm({ ...jobForm, description: e.target.value })}
-                placeholder="Description"
-            />
-            <input
-                type="text"
-                value={jobForm.salary}
-                onChange={(e) => setJobForm({ ...jobForm, salary: e.target.value })}
-                placeholder="Salary"
-            />
-            <select
-                value={jobForm.company_id}
-                onChange={(e) => setJobForm({ ...jobForm, company_id: Number(e.target.value) })}
-            >
-                {companies.map((company) => (
-                    <option key={company.id} value={company.id}>
-                        {company.name}
-                    </option>
-                ))}
-            </select>
-            <button onClick={handleAdd}>Add Job</button>
+            <div style={{ marginTop: "24px" }}>
+                <h3 style={{ marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
+                    <span>➕</span> Add New Job
+                </h3>
+                <div className="form-row">
+                    <input
+                        type="text"
+                        className="form-input"
+                        value={jobForm.title}
+                        onChange={(e) => setJobForm({ ...jobForm, title: e.target.value })}
+                        placeholder="Job title"
+                    />
+                    <input
+                        type="text"
+                        className="form-input"
+                        value={jobForm.description}
+                        onChange={(e) => setJobForm({ ...jobForm, description: e.target.value })}
+                        placeholder="Job description"
+                    />
+                    <input
+                        type="text"
+                        className="form-input"
+                        value={jobForm.salary}
+                        onChange={(e) => setJobForm({ ...jobForm, salary: e.target.value })}
+                        placeholder="Salary"
+                    />
+                    <select
+                        className="form-input"
+                        value={jobForm.company_id}
+                        onChange={(e) => setJobForm({ ...jobForm, company_id: Number(e.target.value) })}
+                    >
+                        {companies.map((company) => (
+                            <option key={company.id} value={company.id}>
+                                {company.name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+                <button className="btn btn-primary" onClick={handleAdd}>
+                    {jobForm.id && jobForm.id > 0 ? "🔄 Update Job" : "🚀 Add Job"}
+                </button>
+            </div>
         </div>
     );
 }
 
-export default JobCard
+export default JobCard;
