@@ -1,5 +1,5 @@
 from fastapi.testclient import TestClient
-from backend.main import app
+from backend.app.main import app
 from backend.database import SessionLocal
 from backend.models.job import Job
 from backend.models.company import Company
