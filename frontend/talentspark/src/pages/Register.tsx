@@ -14,7 +14,7 @@ function Register({onSwitchToLogin}: Props){
     const handleSubmit = async (e:React.FormEvent) => {
         e.preventDefault();
         try {
-            await register({name,email,password,role});
+            await register({ username: name, email, password, role });
             alert("Registration successful! Please login.");
             onSwitchToLogin();
         } catch (error) {

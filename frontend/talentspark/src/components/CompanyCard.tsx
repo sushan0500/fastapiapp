@@ -65,15 +65,17 @@ function CompanyCard({
     return(
         <div>
             {companies.map((company) => (
-                <div key={company.id}>
+                <div key={company.id} style={{ position: "relative", border: "1px solid #eee", padding: 12, marginBottom: 8 }}>
                     {editCompanyId === company.id ? (
                         <>
                     <input type="text" value={editform.name} onChange={(e)=>setEditform({...editform,name:e.target.value})} placeholder={company.name} />
                     <input type="text" value={editform.email} onChange={(e)=>setEditform({...editform,email:e.target.value})} placeholder={company.email} />
                     <input type="text" value={editform.phone} onChange={(e)=>setEditform({...editform,phone:e.target.value})} placeholder={company.phone} />
                     <input type="text" value={editform.location} onChange={(e)=>setEditform({...editform,location:e.target.value})} placeholder={company.location} />
-                    <button onClick={handleSave}>Save</button>
-                    <button onClick={handlecancel}>Cancel</button>
+                    <div style={{ position: "absolute", right: 8, top: 8, display: "flex", gap: 6 }}>
+                        <button onClick={handleSave} style={{ padding: "4px 8px" }}>Save</button>
+                        <button onClick={handlecancel} style={{ padding: "4px 8px" }}>Cancel</button>
+                    </div>
                     </>
                     ):
                     <>
@@ -81,9 +83,11 @@ function CompanyCard({
                     <p>Email: {company.email}</p>
                     <p>Phone: {company.phone}</p>
                     <p>Location: {company.location}</p>
+                    <div style={{ position: "absolute", right: 8, top: 8, display: "flex", gap: 6 }}>
+                        <button onClick={() => { setEditCompanyId(company.id); setEditform({ ...company }); }} style={{ padding: "4px 8px" }}>Edit</button>
+                        <button onClick={() => ondelete(company.id)} style={{ padding: "4px 8px" }}>Delete</button>
+                    </div>
                     </>}
-                    <button onClick={() => setEditCompanyId(company.id)}>Edit</button>
-                    <button onClick={() => ondelete(company.id)}>Delete</button>
                     <hr></hr>
                 </div>
             ))}
