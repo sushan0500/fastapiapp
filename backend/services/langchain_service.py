@@ -34,7 +34,7 @@ def chat_without_memory(user_query: str):
 
 def _generate_reply(user_query: str, session_id: str | None = None) -> str:
     if client is None:
-        return "The Groq API key is not configured. Set the GROQ_API_KEY environment variable and restart the app."
+        return "The Groq API key is not configured. Set the GROQ_API_KEY environment variable and restart the app. Get your API key from https://console.groq.com"
 
     history = []
     if session_id is not None and session_id in store:
