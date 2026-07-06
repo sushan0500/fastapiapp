@@ -6,7 +6,7 @@ from fastapi.responses import HTMLResponse
 
 from backend.database import Base, engine
 from backend.models import company as company_model, job as job_model, users as user_model
-from backend.routers import auth, chat, company, job
+from backend.routers import auth, chat, company, job, rag
 
 app = FastAPI()
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -29,6 +29,7 @@ app.include_router(auth.router)
 app.include_router(company.router)
 app.include_router(job.router)
 app.include_router(chat.router)
+app.include_router(rag.router)
 
 @app.get("/", response_class=HTMLResponse)
 def read_root():

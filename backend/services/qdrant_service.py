@@ -1,11 +1,10 @@
 import os
-from django import db
 from dotenv import load_dotenv
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams, PointStruct
 from fastembed import TextEmbedding
 from sqlalchemy.orm import Session
-from models.job import Job
+from backend.models.job import Job
 
 load_dotenv()
 
@@ -19,28 +18,31 @@ qdrant = QdrantClient(
 
 embedding_model = TextEmbedding("BAAI/bge-small-en-v1.5")
 
+
 def ensure_collection():
     collections = [c.name for c in qdrant.get_collections().collections]
     if COLLECTION_NAME in collections:
         info = qdrant.get_collection(COLLECTION_NAME)
         existing_size = info.config.params.vector.size
         if existing_size != VECTOR_SIZE:
-            qdrant.delete_collection(COLLECTION_NAME)
-            collection.remove(COLLECTION_NAME)
+            qdrant.delete_collection(collection_name=COLLECTION_NAME)
     if COLLECTION_NAME not in collections:
         qdrant.recreate_collection(
             collection_name=COLLECTION_NAME,
             vectors_config=VectorParams(size=VECTOR_SIZE, distance=Distance.COSINE),
         )
 
+
 def embed_text(text: str) -> list[float]:
     return next(embedding_model.embed(text)).tolist()
+
+
 def embed_all_jobs(db: Session) -> int:
     ensure_collection()
     jobs = db.query(Job).all()
     if not jobs:
         return 0
-    
+
     points = []
     for job in jobs:
         text = f"{job.title} {job.description or ''}"
@@ -52,9 +54,10 @@ def embed_all_jobs(db: Session) -> int:
                 payload={"title": job.title, "description": job.description or "", "salary": job.salary, "job_id": job.id}
             )
         )
-    
+
     qdrant.upsert(collection_name=COLLECTION_NAME, points=points)
     return len(points)
+
 
 def search_jobs(query: str, top_k: int = 5) -> list[dict]:
     ensure_collection()
@@ -72,16 +75,26 @@ def search_jobs(query: str, top_k: int = 5) -> list[dict]:
             "salary": hit.payload.get("salary"),
             "score": round(hit.score, 4)
         }
-        for hit in results.points
+        for hit in result.points
     ]
 
 
-def match_jobs_with_qdrant(db: Session, query: str, top_k: int = 5) -> list[dict]:
+def match_jobs_for_profile(skills: str, experience: str, top_k: int = 5) -> list[dict]:
     ensure_collection()
-    profile_text = f"Skills: {skills}.Experience: {experience}"
+    profile_text = f"Skills: {skills}. Experience: {experience}"
     profile_vector = embed_text(profile_text)
-    results = qdrant.query_points(
+    result = qdrant.query_points(
         collection_name=COLLECTION_NAME,
         query=profile_vector,
         limit=top_k,
     )
+    return [
+        {
+            "job_id": hit.payload.get("job_id"),
+            "title": hit.payload.get("title"),
+            "description": hit.payload.get("description"),
+            "salary": hit.payload.get("salary"),
+            "score": round(hit.score, 4)
+        }
+        for hit in result.points
+    ]

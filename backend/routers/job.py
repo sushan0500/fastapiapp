@@ -9,7 +9,7 @@ from backend.schemas.job import JobCreate, JobUpdate, JobResponse
 router = APIRouter(prefix="/job", tags=["job"])
 
 
-@router.post("/", status_code=status.HTTP_201_CREATED, response_model=JobResponse)
+@router.post("", status_code=status.HTTP_201_CREATED, response_model=JobResponse)
 def create_job(job: JobCreate, db: Session = Depends(get_db), current_user = Depends(role_required(["admin", "hr"]))):
     company = db.query(Company).filter(Company.id == job.company_id).first()
     if not company:
@@ -20,7 +20,7 @@ def create_job(job: JobCreate, db: Session = Depends(get_db), current_user = Dep
     db.refresh(db_job)
     return db_job
 
-@router.get("/", status_code=status.HTTP_200_OK, response_model=list[JobResponse])
+@router.get("", status_code=status.HTTP_200_OK, response_model=list[JobResponse])
 def get_all_job(db: Session = Depends(get_db), current_user = Depends(get_current_user)):
     jobs = db.query(Job).all()
     return jobs

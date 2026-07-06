@@ -77,7 +77,7 @@ function Register({ onSwitchToLogin }: Props) {
                                     fontSize: "18px",
                                 }}
                             >
-                                {showPassword ? "👁️" : "👁️\u200d🗨️"}
+                                {showPassword ? "👁️" : "👁️‍🗨️"}
                             </button>
                         </div>
                     </div>
@@ -93,6 +93,7 @@ function Register({ onSwitchToLogin }: Props) {
                             <option value="admin">Admin</option>
                             <option value="user">User</option>
                             <option value="employer">Employer</option>
+                            <option value="hr">HR</option>
                         </select>
                     </div>
                     <button type="submit" className="btn btn-primary" style={{ width: "100%" }}>

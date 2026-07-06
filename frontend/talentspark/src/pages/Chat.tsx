@@ -68,14 +68,23 @@ function Chat() {
             };
 
             setMessages((prev) => [...prev, assistantMessage]);
-        } catch (error) {
+        } catch (error: any) {
+            let errorMessage = "Sorry, I could not reach the chatbot service right now. Please try again later.";
+            
+            // Provide more specific error messages
+            if (error.response?.status === 500) {
+                errorMessage = "The server encountered an error. This might be due to a missing or invalid API key. Please check the backend configuration.";
+            } else if (error.code === 'ERR_NETWORK' || error.message?.includes('Network Error')) {
+                errorMessage = "Network Error: Unable to connect to the server. Please ensure the backend is running on http://127.0.0.1:8000";
+            }
+            
             const fallback: ChatMessage = {
                 id: `${Date.now()}-error`,
                 role: "assistant",
-                content: "Sorry, I could not reach the chatbot service right now. Please try again later.",
+                content: errorMessage,
             };
             setMessages((prev) => [...prev, fallback]);
-            console.error(error);
+            console.error("Chat error:", error);
         } finally {
             setLoading(false);
         }

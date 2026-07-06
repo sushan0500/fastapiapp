@@ -16,6 +16,11 @@ export const login = async (credentials:LoginRequest):Promise<LoginResponse>=>{
 }
 
 export const register = async (user:RegisterRequest):Promise<RegisterResponse>=>{
-    const response = await axios.post<RegisterResponse>(`${API_URL}/register`,user);
+    const response = await axios.post<RegisterResponse>(`${API_URL}/register`, {
+        name: user.username,
+        email: user.email,
+        password: user.password,
+        role: user.role
+    });
     return response.data;
 }

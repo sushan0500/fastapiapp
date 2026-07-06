@@ -11,7 +11,7 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
 
 def role_required(required_roles: list[str]):
     def role_decorator(current_user = Depends(get_current_user)):
-        if current_user.role not in required_roles:
+        if current_user.role.lower() not in [role.lower() for role in required_roles]:
             raise HTTPException(status_code=403, detail="Access denied")
         return current_user
     return role_decorator

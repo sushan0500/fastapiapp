@@ -92,8 +92,12 @@ function App() {
         try {
             const updatedCompany = await updateCompany(company.id, company);
             setCompanies(companies.map((c) => c.id === updatedCompany.id ? updatedCompany : c));
-        } catch (err) {
-            setError(err as Error);
+        } catch (err: any) {
+            if (err.response?.status === 401 || err.response?.status === 403) {
+                alert("Access Denied: You don't have permission to perform this action.");
+            } else {
+                setError(err as Error);
+            }
         }
     }
 
@@ -101,8 +105,12 @@ function App() {
         try {
             await deleteCompany(id);
             setCompanies(companies.filter((c) => c.id !== id));
-        } catch (err) {
-            setError(err as Error);
+        } catch (err: any) {
+            if (err.response?.status === 401 || err.response?.status === 403) {
+                alert("Access Denied: You don't have permission to perform this action.");
+            } else {
+                setError(err as Error);
+            }
         }
     }
 
@@ -128,8 +136,12 @@ function App() {
         try {
             const updated = await updateJob(job.id, job);
             setJobs(jobs.map((j) => (j.id === updated.id ? updated : j)));
-        } catch (err) {
-            setError(err as Error);
+        } catch (err: any) {
+            if (err.response?.status === 401 || err.response?.status === 403) {
+                alert("Access Denied: You don't have permission to perform this action.");
+            } else {
+                setError(err as Error);
+            }
         }
     }
 
@@ -137,8 +149,12 @@ function App() {
         try {
             await deleteJob(id);
             setJobs(jobs.filter((j) => j.id !== id));
-        } catch (err) {
-            setError(err as Error);
+        } catch (err: any) {
+            if (err.response?.status === 401 || err.response?.status === 403) {
+                alert("Access Denied: You don't have permission to perform this action.");
+            } else {
+                setError(err as Error);
+            }
         }
     }
 
@@ -165,7 +181,10 @@ function App() {
     }
 
     if (error) {
-        return <div className="error">Error: {error.message}</div>;
+        const errorMessage = error.message.includes("401") || error.message.includes("403") 
+            ? "Access Denied: You don't have permission to perform this action." 
+            : `Error: ${error.message}`;
+        return <div className="error">{errorMessage}</div>;
     }
 
     return (
