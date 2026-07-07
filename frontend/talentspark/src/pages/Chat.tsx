@@ -1,6 +1,10 @@
 import { useState, useRef, useEffect } from "react";
 import { sendChatMessage } from "../Services/ChatService";
 import type { ChatMessage } from "../types/chat";
+import ReactMarkdown from "react-markdown";
+import rehypeHighlight from "rehype-highlight";
+import rehypeRaw from "rehype-raw";
+import "highlight.js/styles/github-dark.css";
 
 const STORAGE_SESSION_KEY = "chat_session_id";
 
@@ -25,7 +29,7 @@ function Chat() {
         {
             id: "welcome",
             role: "assistant",
-            content: "Hello! I'm your TalentSpark assistant. How can I help you today?",
+            content: "Hello! I'm your TalentSpark AI assistant. I can help you with:\n\n- **Job search** - Find the perfect position for your skills\n- **Company research** - Get insights about potential employers\n- **Resume tips** - Improve your resume for better results\n- **Interview prep** - Practice common interview questions\n- **Career advice** - Get guidance on your career path\n\nWhat would you like to know? 🚀",
         },
     ]);
 
@@ -95,7 +99,7 @@ function Chat() {
             {
                 id: "welcome",
                 role: "assistant",
-                content: "Hello! I'm your TalentSpark assistant. How can I help you today?",
+                content: "Hello! I'm your TalentSpark AI assistant. I can help you with:\n\n- **Job search** - Find the perfect position for your skills\n- **Company research** - Get insights about potential employers\n- **Resume tips** - Improve your resume for better results\n- **Interview prep** - Practice common interview questions\n- **Career advice** - Get guidance on your career path\n\nWhat would you like to know? 🚀",
             },
         ]);
     };
@@ -122,7 +126,54 @@ function Chat() {
                         key={message.id}
                         className={`message ${message.role === "user" ? "message-user" : "message-assistant"}`}
                     >
-                        {message.content}
+                        {message.role === "user" ? (
+                            message.content
+                        ) : (
+                            <ReactMarkdown
+                                rehypePlugins={[rehypeHighlight, rehypeRaw]}
+                                components={{
+                                    p: ({ children }) => <p style={{ margin: "4px 0" }}>{children}</p>,
+                                    ul: ({ children }) => <ul style={{ margin: "8px 0", paddingLeft: "20px" }}>{children}</ul>,
+                                    ol: ({ children }) => <ol style={{ margin: "8px 0", paddingLeft: "20px" }}>{children}</ol>,
+                                    li: ({ children }) => <li style={{ marginBottom: "4px" }}>{children}</li>,
+                                    code: ({ children, className }) => {
+                                        const isBlock = className?.includes("language-");
+                                        if (isBlock) {
+                                            return (
+                                                <pre style={{
+                                                    background: "var(--surface-alt)",
+                                                    padding: "12px",
+                                                    borderRadius: "8px",
+                                                    overflow: "auto",
+                                                    margin: "8px 0",
+                                                    fontSize: "13px"
+                                                }}>
+                                                    <code className={className}>{children}</code>
+                                                </pre>
+                                            );
+                                        }
+                                        return (
+                                            <code style={{
+                                                background: "var(--surface-alt)",
+                                                padding: "2px 6px",
+                                                borderRadius: "4px",
+                                                fontSize: "13px"
+                                            }}>
+                                                {children}
+                                            </code>
+                                        );
+                                    },
+                                    a: ({ children, href }) => (
+                                        <a href={href} style={{ color: "var(--primary)" }} target="_blank" rel="noopener noreferrer">
+                                            {children}
+                                        </a>
+                                    ),
+                                    strong: ({ children }) => <strong style={{ color: "var(--primary)" }}>{children}</strong>,
+                                }}
+                            >
+                                {message.content}
+                            </ReactMarkdown>
+                        )}
                     </div>
                 ))}
                 {loading && (

@@ -5,6 +5,7 @@ import Footer from "./components/Footer";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Chat from "./pages/Chat";
+import ResumeAnalyzer from "./pages/ResumeAnalyzer";
 import { useEffect, useState } from "react";
 import { getCompanies, updateCompany, deleteCompany, createCompany } from "./Services/CompanyService";
 import { getJobs, createJob, updateJob, deleteJob } from "./Services/JobService";
@@ -198,14 +199,34 @@ function App() {
             </button>
             <NavBar />
             <main className="main-container">
-                <div id="home" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
-                    <h1 style={{ fontSize: "32px", fontWeight: "700" }}>
-                        <span className="gradient-text">TalentSpark Dashboard</span>
-                    </h1>
+                {/* Hero Section */}
+                <section className="hero-section" id="home">
+                    <div className="hero-content">
+                        <h1 className="hero-title">
+                            <span className="gradient-text">TalentSpark Dashboard</span>
+                        </h1>
+                        <p className="hero-subtitle">
+                            Your all-in-one platform for job management, AI assistance, and resume analysis
+                        </p>
+                        <div className="hero-stats">
+                            <div className="stat-item">
+                                <span className="stat-value">{companies.length}</span>
+                                <span className="stat-label">Companies</span>
+                            </div>
+                            <div className="stat-item">
+                                <span className="stat-value">{jobs.length}</span>
+                                <span className="stat-label">Jobs</span>
+                            </div>
+                            <div className="stat-item">
+                                <span className="stat-value">AI</span>
+                                <span className="stat-label">Powered</span>
+                            </div>
+                        </div>
+                    </div>
                     <button className="logout-btn" onClick={handleLogout}>
                         🚪 Logout
                     </button>
-                </div>
+                </section>
                 
                 <div className="card-grid">
                     <div className="stats-card">
@@ -237,6 +258,9 @@ function App() {
                 </div>
                 <div id="chat">
                     <Chat />
+                </div>
+                <div id="resume">
+                    <ResumeAnalyzer />
                 </div>
             </main>
             <Footer />

@@ -71,10 +71,18 @@ function CompanyCard({ companies, onadd, onedit, ondelete }: Props) {
                     <span className="card-icon">🏢</span>
                     Companies
                 </h2>
+                <span className="badge">{companies.length} Total</span>
             </div>
 
             {companies.length === 0 ? (
-                <p style={{ color: "var(--text-secondary)", padding: "16px 0" }}>No companies found. Add your first company below!</p>
+                <div style={{ 
+                    textAlign: "center", 
+                    padding: "40px 20px",
+                    color: "var(--text-secondary)"
+                }}>
+                    <div style={{ fontSize: "48px", marginBottom: "16px" }}>📭</div>
+                    <p>No companies found. Add your first company below!</p>
+                </div>
             ) : (
                 companies.map((company) => (
                     <div key={company.id} className="company-card">
@@ -111,11 +119,24 @@ function CompanyCard({ companies, onadd, onedit, ondelete }: Props) {
                             </div>
                         ) : (
                             <div className="company-header">
-                                <div className="company-info">
+                                <div>
                                     <h3>{company.name}</h3>
                                     <p>📧 {company.email}</p>
                                     <p>📱 {company.phone}</p>
                                     <p>📍 {company.location}</p>
+                                    {company.jobs && company.jobs.length > 0 && (
+                                        <div style={{ marginTop: "12px" }}>
+                                            <span style={{ 
+                                                fontSize: "12px", 
+                                                color: "var(--text-muted)",
+                                                background: "var(--surface-alt)",
+                                                padding: "4px 10px",
+                                                borderRadius: "12px"
+                                            }}>
+                                                {company.jobs.length} job{company.jobs.length > 1 ? 's' : ''} posted
+                                            </span>
+                                        </div>
+                                    )}
                                 </div>
                                 <div className="company-actions">
                                     <button

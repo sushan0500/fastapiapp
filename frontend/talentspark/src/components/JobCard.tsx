@@ -55,10 +55,18 @@ function JobCard({ jobs, companies, onAdd, onEdit, onDelete }: Props) {
                     <span className="card-icon">💼</span>
                     Jobs
                 </h2>
+                <span className="badge">{jobs.length} Total</span>
             </div>
 
             {jobs.length === 0 ? (
-                <p style={{ color: "var(--text-secondary)", padding: "16px 0" }}>No jobs available. Add your first job below!</p>
+                <div style={{ 
+                    textAlign: "center", 
+                    padding: "40px 20px",
+                    color: "var(--text-secondary)"
+                }}>
+                    <div style={{ fontSize: "48px", marginBottom: "16px" }}>📭</div>
+                    <p>No jobs available. Add your first job below!</p>
+                </div>
             ) : (
                 jobs.map((job) => (
                     <div key={job.id} className="job-card">
