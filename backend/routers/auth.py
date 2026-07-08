@@ -1,27 +1,62 @@
-from backend.utils.token import create_access_token
+from utils.token import create_access_token
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session
-from backend.models.users import User
-from backend.schemas.users import UserCreate, UserResponse
-from backend.schemas.token import Token
-from backend.database import get_db
-from backend.utils.security import hash_password, verify_password
+from sqlalchemy.ext.asyncio import AsyncSession 
+from sqlalchemy.future import select
+from models.users import User
+from schemas.users import UserCreate, UserResponse
+from schemas.token import Token
+from database import get_db
+from utils.security import hash_password, verify_password
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 @router.post("/register", response_model=UserResponse)
-def register(user: UserCreate, db: Session = Depends(get_db)):
-    existing_user = db.query(User).filter(User.email == user.email).first()
-    if existing_user:
-        raise HTTPException(status_code=400, detail="Email already exists")
+async def register(user: UserCreate, db: AsyncSession = Depends(get_db)):
+    try:
+        result = await db.execute(select(User).filter(User.email == user.email))
+        existing_user = result.scalars().first()
+        if existing_user:
+            raise HTTPException(status_code=400, detail="Email already exists")
 
-    existing_username = db.query(User).filter(User.username == user.name).first()
-    if existing_username:
-        raise HTTPException(status_code=400, detail="Username already exists")
+        result = await db.execute(select(User).filter(User.username == user.name))
+        existing_username = result.scalars().first()
+        if existing_username:
+            raise HTTPException(status_code=400, detail="Username already exists")
 
-    hashed_password = hash_password(user.password)
+        hashed_password = hash_password(user.password)
+        db_user = User(
+            username=user.name,
+            email=user.email,
+            hashed_password=hashed_password,
+            role=user.role
+        )
+        db.add(db_user)
+        await db.commit()
+        await db.refresh(db_user)
+    except HTTPException:
+        raise
+    except Exception as e:
+        await db.rollback()
+        raise HTTPException(status_code=400, detail=f"Database error during registration: {str(e)}")
+    return db_user
+
+@router.post("/login", response_model=Token)
+async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
+    try:
+        result = await db.execute(select(User).filter(User.email == form_data.username))
+        existing_user = result.scalars().first()
+        if not existing_user:
+            raise HTTPException(status_code=404, detail="User not found")
+        if not verify_password(form_data.password, existing_user.hashed_password):
+            raise HTTPException(status_code=400, detail="Invalid password")
+        access_token = create_access_token(data={"sub": str(existing_user.id), "role": existing_user.role})
+        return {"access_token": access_token, "token": access_token, "token_type": "bearer"}  
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Authentication server error: {str(e)}")          
     db_user = User(
         username=user.name,
         email=user.email,
@@ -38,10 +73,11 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     return db_user
 
 @router.post("/login", response_model=Token)
-def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
     email = form_data.username
     password = form_data.password
-    existing_user = db.query(User).filter(User.email == email).first()
+    result = await db.execute(select(User).where(User.email == email))
+    existing_user = result.scalars().first()
     if not existing_user:
         raise HTTPException(status_code=404, detail="User not found")
     if not verify_password(password, existing_user.hashed_password):

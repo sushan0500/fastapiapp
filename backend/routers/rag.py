@@ -1,16 +1,16 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from backend.database import get_db
-from backend.schemas.rag import (
+from database import get_db
+from schemas.rag import (
     ResumeRequest, ResumeResponse,
     JobMatchRequest, JobMatchResponse, JobMatchResult,
     RagSearchRequest, RagSearchResponse,
     EmbedResponse,
     JobSearchRequest, SemanticSearchResponse, SemanticSearchResult,
 )
-from backend.services.resume_service import analyse_resume
-from backend.services.qdrant_service import embed_all_jobs, search_jobs, match_jobs_for_profile
-from backend.services.rag_service import rag_job_search
+from services.resume_service import analyse_resume
+from services.qdrant_service import embed_all_jobs, search_jobs, match_jobs_for_profile
+from services.rag_service import rag_job_search
 
 router = APIRouter(prefix="/rag", tags=["RAG"])
 

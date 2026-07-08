@@ -3,13 +3,12 @@ from pathlib import Path
 from dotenv import load_dotenv
 from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
-from backend.services.qdrant_service import search_jobs
+from services.qdrant_service import search_jobs
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
 ENV_PATH = ROOT_DIR / ".env"
-if not ENV_PATH.exists():
-    raise RuntimeError(f'Missing .env file at {ENV_PATH}')
-load_dotenv(str(ENV_PATH), override=True)
+if ENV_PATH.exists():
+    load_dotenv(str(ENV_PATH), override=True)
 
 rag_prompt = ChatPromptTemplate.from_messages([
     (

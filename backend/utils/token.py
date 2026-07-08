@@ -2,10 +2,9 @@ from datetime import datetime, timedelta
 import os
 from jose import JWTError, jwt
 from dotenv import load_dotenv
-from fastapi import Depends, HTTPException
-from sqlalchemy.orm import Session
-from backend.database import get_db
-from backend.models.users import User
+from fastapi import HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
+from models.users import User
 
 load_dotenv()
 SECRET_KEY = os.getenv("SECRET_KEY", "your_secret_key")
@@ -20,17 +19,13 @@ def create_access_token(data: dict, expires_delta: timedelta = timedelta(hours=2
     return encoded_jwt
 
 
-def verify_access_token(token: str, db: Session = Depends(get_db)):
+def verify_access_token(token: str):
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id = payload.get("sub")
+        decode = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return decode
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token has expired")
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
 
-    if user_id is None:
-        raise HTTPException(status_code=401, detail="Invalid token payload")
-
-    user = db.query(User).filter(User.id == int(user_id)).first()
-    if user is None:
-        raise HTTPException(status_code=401, detail="User not found")
-    return user
+   

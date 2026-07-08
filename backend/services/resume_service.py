@@ -6,9 +6,9 @@ from langchain_core.prompts import ChatPromptTemplate
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
 ENV_PATH = ROOT_DIR / ".env"
-if not ENV_PATH.exists():
-    raise RuntimeError(f'Missing .env file at {ENV_PATH}')
-load_dotenv(str(ENV_PATH), override=True)
+# Load .env if it exists, but don't raise at import time — fail later when needed.
+if ENV_PATH.exists():
+    load_dotenv(str(ENV_PATH), override=True)
 
 resume_prompt = ChatPromptTemplate.from_messages([
     ("system", """You are a professional resume analyser.

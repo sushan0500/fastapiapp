@@ -115,3 +115,33 @@ refresh token -> used to refresh access token
 
 
 pip install python-multipart
+
+## Run locally
+
+Recommended ways to start the backend from the repository root:
+
+- Activate the virtualenv (PowerShell):
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+python -m uvicorn backend.app.main:app --reload
+```
+
+- Run without activating (uses the venv python):
+
+```powershell
+.\.venv\Scripts\python.exe -m uvicorn backend.app.main:app --reload
+```
+
+- Directly call the uvicorn exe:
+
+```powershell
+.\.venv\Scripts\uvicorn.exe backend.app.main:app --reload
+```
+
+- Or run the helper from the `backend` folder:
+
+```powershell
+cd backend
+.\start_backend.ps1
+```

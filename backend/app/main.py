@@ -8,9 +8,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 
-from backend.database import Base, engine
-from backend.models import company as company_model, job as job_model, users as user_model
-from backend.routers import auth, chat, company, job, rag
+from database import Base, engine
+from models import company as company_model, job as job_model, users as user_model
+from routers import auth, chat, company, job, rag
 
 app = FastAPI()
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,10 +24,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 @app.on_event("startup")
-def on_startup():
-    Base.metadata.create_all(bind=engine)
+async def startup_event():
+    from database import engine
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
 
 app.include_router(auth.router)
 app.include_router(company.router)
