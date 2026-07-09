@@ -44,36 +44,6 @@ async def register(user: UserCreate, db: AsyncSession = Depends(get_db)):
 
 @router.post("/login", response_model=Token)
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
-    try:
-        result = await db.execute(select(User).filter(User.email == form_data.username))
-        existing_user = result.scalars().first()
-        if not existing_user:
-            raise HTTPException(status_code=404, detail="User not found")
-        if not verify_password(form_data.password, existing_user.hashed_password):
-            raise HTTPException(status_code=400, detail="Invalid password")
-        access_token = create_access_token(data={"sub": str(existing_user.id), "role": existing_user.role})
-        return {"access_token": access_token, "token": access_token, "token_type": "bearer"}  
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Authentication server error: {str(e)}")          
-    db_user = User(
-        username=user.name,
-        email=user.email,
-        hashed_password=hashed_password,
-        role=user.role
-    )
-    try:
-        db.add(db_user)
-        db.commit()
-        db.refresh(db_user)
-    except IntegrityError:
-        db.rollback()
-        raise HTTPException(status_code=400, detail="User already exists") from None
-    return db_user
-
-@router.post("/login", response_model=Token)
-async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
     email = form_data.username
     password = form_data.password
     result = await db.execute(select(User).where(User.email == email))

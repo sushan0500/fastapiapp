@@ -8,14 +8,15 @@ type Props = {
     onAdd: (job: Job) => void;
     onEdit: (job: Job) => void;
     onDelete: (id: number) => void;
+    canModify?: boolean;
 };
 
-function JobCard({ jobs, companies, onAdd, onEdit, onDelete }: Props) {
+function JobCard({ jobs, companies, onAdd, onEdit, onDelete, canModify = false }: Props) {
     const [jobForm, setJobForm] = useState<Job>({
         id: 0,
         title: "",
         description: "",
-        salary: "",
+        salary: 0,
         company_id: companies.length > 0 ? companies[0].id : 0,
     });
 
@@ -35,7 +36,7 @@ function JobCard({ jobs, companies, onAdd, onEdit, onDelete }: Props) {
             id: 0,
             title: "",
             description: "",
-            salary: "",
+            salary: 0,
             company_id: companies.length > 0 ? companies[0].id : 0,
         });
     };
@@ -86,12 +87,18 @@ function JobCard({ jobs, companies, onAdd, onEdit, onDelete }: Props) {
                                 </div>
                             </div>
                             <div className="company-actions">
-                                <button className="btn btn-secondary" onClick={() => startEdit(job)}>
-                                    ✏️ Edit
-                                </button>
-                                <button className="btn btn-danger" onClick={() => handleDeleteClick(job.id)}>
-                                    🗑️ Delete
-                                </button>
+                                {canModify ? (
+                                    <>
+                                        <button className="btn btn-secondary" onClick={() => startEdit(job)}>
+                                            ✏️ Edit
+                                        </button>
+                                        <button className="btn btn-danger" onClick={() => handleDeleteClick(job.id)}>
+                                            🗑️ Delete
+                                        </button>
+                                    </>
+                                ) : (
+                                    <span className="permission-note">Admin/HR only</span>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -99,46 +106,54 @@ function JobCard({ jobs, companies, onAdd, onEdit, onDelete }: Props) {
             )}
 
             <div style={{ marginTop: "24px" }}>
-                <h3 style={{ marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
-                    <span>➕</span> Add New Job
-                </h3>
-                <div className="form-row">
-                    <input
-                        type="text"
-                        className="form-input"
-                        value={jobForm.title}
-                        onChange={(e) => setJobForm({ ...jobForm, title: e.target.value })}
-                        placeholder="Job title"
-                    />
-                    <input
-                        type="text"
-                        className="form-input"
-                        value={jobForm.description}
-                        onChange={(e) => setJobForm({ ...jobForm, description: e.target.value })}
-                        placeholder="Job description"
-                    />
-                    <input
-                        type="text"
-                        className="form-input"
-                        value={jobForm.salary}
-                        onChange={(e) => setJobForm({ ...jobForm, salary: e.target.value })}
-                        placeholder="Salary"
-                    />
-                    <select
-                        className="form-input"
-                        value={jobForm.company_id}
-                        onChange={(e) => setJobForm({ ...jobForm, company_id: Number(e.target.value) })}
-                    >
-                        {companies.map((company) => (
-                            <option key={company.id} value={company.id}>
-                                {company.name}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-                <button className="btn btn-primary" onClick={handleAdd}>
-                    {jobForm.id && jobForm.id > 0 ? "🔄 Update Job" : "🚀 Add Job"}
-                </button>
+                {canModify ? (
+                    <>
+                        <h3 style={{ marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
+                            <span>➕</span> Add New Job
+                        </h3>
+                        <div className="form-row">
+                            <input
+                                type="text"
+                                className="form-input"
+                                value={jobForm.title}
+                                onChange={(e) => setJobForm({ ...jobForm, title: e.target.value })}
+                                placeholder="Job title"
+                            />
+                            <input
+                                type="text"
+                                className="form-input"
+                                value={jobForm.description}
+                                onChange={(e) => setJobForm({ ...jobForm, description: e.target.value })}
+                                placeholder="Job description"
+                            />
+                            <input
+                                type="number"
+                                className="form-input"
+                                value={jobForm.salary}
+                                onChange={(e) => setJobForm({ ...jobForm, salary: Number(e.target.value) })}
+                                placeholder="Salary"
+                            />
+                            <select
+                                className="form-input"
+                                value={jobForm.company_id}
+                                onChange={(e) => setJobForm({ ...jobForm, company_id: Number(e.target.value) })}
+                            >
+                                {companies.map((company) => (
+                                    <option key={company.id} value={company.id}>
+                                        {company.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <button className="btn btn-primary" onClick={handleAdd}>
+                            {jobForm.id && jobForm.id > 0 ? "🔄 Update Job" : "🚀 Add Job"}
+                        </button>
+                    </>
+                ) : (
+                    <div className="permission-note" style={{ marginTop: "16px" }}>
+                        Job create/edit/delete actions are only available for Admin or HR users.
+                    </div>
+                )}
             </div>
         </div>
     );

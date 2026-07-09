@@ -19,6 +19,7 @@ function App() {
     const [companies, setCompanies] = useState<Company[]>([]);
     const [jobs, setJobs] = useState<Job[]>([]);
     const [token, setToken] = useState<string | null>(localStorage.getItem("token"));
+    const [userRole, setUserRole] = useState<string | null>(null);
     const [showRegister, setShowRegister] = useState(false);
     const [darkMode, setDarkMode] = useState(() => {
         const saved = localStorage.getItem("darkMode");
@@ -31,6 +32,31 @@ function App() {
         localStorage.setItem("darkMode", JSON.stringify(darkMode));
     }, [darkMode]);
 
+    useEffect(() => {
+        if (token) {
+            const payload = parseJwt(token);
+            setUserRole(typeof payload?.role === "string" ? payload.role.toLowerCase() : null);
+        } else {
+            setUserRole(null);
+        }
+    }, [token]);
+
+    function parseJwt(tok: string): Record<string, unknown> | null {
+        try {
+            const base64Url = tok.split(".")[1];
+            const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+            const jsonPayload = decodeURIComponent(
+                atob(base64)
+                    .split("")
+                    .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+                    .join("")
+            );
+            return JSON.parse(jsonPayload);
+        } catch {
+            return null;
+        }
+    }
+
     async function fetchCompanies() {
         if (!token) {
             setLoading(false);
@@ -42,8 +68,12 @@ function App() {
             const company = await getCompanies();
             setCompanies(company);
             setError(null);
-        } catch (err) {
+        } catch (err: any) {
             console.error("Failed to load companies:", err);
+            if (err.response?.status === 401 || err.response?.status === 403) {
+                handleLogout();
+                return;
+            }
             setCompanies([]);
             setError(err as Error);
         } finally {
@@ -59,8 +89,12 @@ function App() {
         try {
             const jobList = await getJobs();
             setJobs(jobList);
-        } catch (err) {
+        } catch (err: any) {
             console.error("Failed to load jobs:", err);
+            if (err.response?.status === 401 || err.response?.status === 403) {
+                handleLogout();
+                return;
+            }
             setJobs([]);
             setError(err as Error);
         }
@@ -70,6 +104,8 @@ function App() {
         localStorage.setItem("token", newToken);
         setToken(newToken);
         setShowRegister(false);
+        const payload = parseJwt(newToken);
+        setUserRole(typeof payload?.role === "string" ? payload.role.toLowerCase() : null);
     }
 
     function handleSwitchToRegister() {
@@ -85,6 +121,7 @@ function App() {
     function handleLogout() {
         localStorage.removeItem("token");
         setToken(null);
+        setUserRole(null);
         setCompanies([]);
         setError(null);
     }
@@ -245,6 +282,7 @@ function App() {
                         onedit={handleEdit}
                         ondelete={handleDelete}
                         onadd={handleAdd}
+                        canModify={userRole === "admin" || userRole === "hr"}
                     />
                 </div>
                 <div id="jobs">
@@ -254,6 +292,7 @@ function App() {
                         onAdd={handleAddJob}
                         onEdit={handleEditJob}
                         onDelete={handleDeleteJob}
+                        canModify={userRole === "admin" || userRole === "hr"}
                     />
                 </div>
                 <div id="chat">

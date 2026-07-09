@@ -6,9 +6,10 @@ type Props = {
     onedit: (company: Company) => void;
     ondelete: (id: number) => void;
     onadd: (company: Company) => void;
+    canModify?: boolean;
 };
 
-function CompanyCard({ companies, onadd, onedit, ondelete }: Props) {
+function CompanyCard({ companies, onadd, onedit, ondelete, canModify = false }: Props) {
     const [editCompanyId, setEditCompanyId] = useState<number | null>(null);
     const [addForm, setAddForm] = useState<Company>({
         id: 0,
@@ -139,21 +140,27 @@ function CompanyCard({ companies, onadd, onedit, ondelete }: Props) {
                                     )}
                                 </div>
                                 <div className="company-actions">
-                                    <button
-                                        className="btn btn-secondary"
-                                        onClick={() => {
-                                            setEditCompanyId(company.id);
-                                            setEditForm({ ...company });
-                                        }}
-                                    >
-                                        ✏️ Edit
-                                    </button>
-                                    <button
-                                        className="btn btn-danger"
-                                        onClick={() => ondelete(company.id)}
-                                    >
-                                        🗑️ Delete
-                                    </button>
+                                    {canModify ? (
+                                        <>
+                                            <button
+                                                className="btn btn-secondary"
+                                                onClick={() => {
+                                                    setEditCompanyId(company.id);
+                                                    setEditForm({ ...company });
+                                                }}
+                                            >
+                                                ✏️ Edit
+                                            </button>
+                                            <button
+                                                className="btn btn-danger"
+                                                onClick={() => ondelete(company.id)}
+                                            >
+                                                🗑️ Delete
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <span className="permission-note">Admin/HR only</span>
+                                    )}
                                 </div>
                             </div>
                         )}
